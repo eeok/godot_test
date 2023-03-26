@@ -1,5 +1,5 @@
 #include "shufflegrid.h"
-#include <random>
+#include <chrono>
 #include <algorithm>
 
 /**
@@ -13,43 +13,48 @@ using namespace godot;
 
 void ShuffleGrid::_register_methods() {
     register_method("_ready", &ShuffleGrid::_ready);
+    register_method("shuffle", &ShuffleGrid::shuffle);
 }
 
-ShuffleGrid::ShuffleGrid() {
-   
+ShuffleGrid::ShuffleGrid() {}
+
+ShuffleGrid::~ShuffleGrid() {}
+
+
+void ShuffleGrid::_init() {    
+    auto now = std::chrono::system_clock::now();
+    auto seed = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()).count();
+    rng = std::mt19937(seed);
 }
 
-ShuffleGrid::~ShuffleGrid() {
-}
 
-
-void ShuffleGrid::_init() {}
-
-void ShuffleGrid::_ready() {
-    // Get all children of the GridContainer
-    Array children = get_children();
-    std::vector<Node*> kids;
-    
-    // Convert Godot's Array to a vector of Node pointers
-    for (int i = 0; i < children.size(); i++) {
-        kids.push_back(Object::cast_to<Node>(children[i]));
-    }
-    
-    // Use a random device to seed the random number generator
-    std::random_device rd;
-    
-    // Create a random number engine and seed it
-    std::mt19937 gen(rd());
-    
+//un script gdscript peut appeler shuffle grace a _register_methods
+//un peu long, mais appeler un objet RandomNumberGenerator fait crasher le programme 
+//(Godot ne s'attends pas à ce qu'on crée un nouvel objet en plein milieu, il doit tout connaitre a l'initialisation je suppose)
+void ShuffleGrid::shuffle() {
     // Shuffle the children using the random number engine
-    std::shuffle(kids.begin(), kids.end(), gen);
-    
+    std::shuffle(children.begin(), children.end(), rng);
     // Remove and re-add the shuffled children in their new order
-    for (const auto &n : kids) {
+    for (const auto &n : children) {
         remove_child(n);
         add_child(n);
     }
+}
 
-    Godot::print("oazifhoizfha");
+void ShuffleGrid::_ready() {    
+
+    //attention, si ce bout de code est en ready, le vecteur children sera vude !
+    //le noeud gridcontainer ne connait pas ses enfants à l'initialisation!
+    Array temp = get_children();
+    children.reserve(temp.size());
+
+    for (int i = 0; i < temp.size(); i++) 
+        children.push_back(Object::cast_to<Node>(temp[i]));
+        //le programme marche sans cast_to<>() mais affiche des messages d'erreurs sur la console Godot
+
+    shuffle();
+
+    //preuve que le script est reconnu
+    Godot::print("script gdnative!");
 }
 

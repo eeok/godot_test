@@ -1,2 +1,7 @@
 extends Node2D
-#coucou
+
+onready var playerBoard = $playerBoard
+
+
+func _on_button_pressed():
+	playerBoard.new()

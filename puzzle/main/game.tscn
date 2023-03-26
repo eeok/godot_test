@@ -2,7 +2,7 @@
 
 [ext_resource path="res://main/game.gd" type="Script" id=1]
 [ext_resource path="res://plateau/modelBoard.tscn" type="PackedScene" id=2]
-[ext_resource path="res://plateau/playerBoard.tscn" type="PackedScene" id=3]
+[ext_resource path="res://plateau/playerboard/playerBoard.tscn" type="PackedScene" id=3]
 
 [node name="game" type="Node2D"]
 script = ExtResource( 1 )
@@ -16,13 +16,22 @@ rect_min_size = Vector2( 800, 800 )
 color = Color( 0.101961, 0.576471, 0.576471, 1 )
 
 [node name="modelBoard" parent="." instance=ExtResource( 2 )]
-margin_left = 431.0
-margin_top = 194.0
-margin_right = 431.0
-margin_bottom = 194.0
+margin_left = 428.0
+margin_top = 113.0
+margin_right = 428.0
+margin_bottom = 113.0
 
 [node name="playerBoard" parent="." instance=ExtResource( 3 )]
-margin_left = 42.0
-margin_top = 189.0
-margin_right = 42.0
-margin_bottom = 189.0
+margin_left = 36.0
+margin_top = 114.0
+margin_right = 36.0
+margin_bottom = 114.0
+
+[node name="button" type="Button" parent="."]
+margin_left = 216.0
+margin_top = 489.0
+margin_right = 510.0
+margin_bottom = 578.0
+text = "shuffle"
+
+[connection signal="pressed" from="button" to="." method="_on_button_pressed"]

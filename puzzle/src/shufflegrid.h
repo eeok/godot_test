@@ -4,12 +4,15 @@
 
 #include <Godot.hpp>
 #include <GridContainer.hpp>
+#include <random>
 
 namespace godot {
     
     class ShuffleGrid : public GridContainer{
         GODOT_CLASS(ShuffleGrid, GridContainer)//important
-    
+
+        std::mt19937 rng;
+        std::vector<Node*> children;
     
     public:
         //fonction statique que Godot appellera pour savoir quelles méthodes peuvent être appelées sur 
@@ -20,6 +23,7 @@ namespace godot {
 
         void _init();
         void _ready();
+        void shuffle();
     };
 
 }
