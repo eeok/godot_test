@@ -4,8 +4,7 @@
 
 /**
  * certes le code est plus long que shuffle.gd
- * mais selon mon gestionnaire de taches, les utilisations ressources sont les memes 
- * (voir légèrement plus performantes)
+ * mais selon mon gestionnaire de taches, les utilisations ressources sont 'quasi?) les memes 
  * 
  */
 
