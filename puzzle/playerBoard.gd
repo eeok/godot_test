@@ -1,38 +1,25 @@
-#une véritable boucherie
-
-#bug: quand en model sélection et qu'on pointe vers en dehors la grille, affiche seulement premier
-#logique ok.... regarder le fonctions d'affichages
-
-#todo 
-#	-enlever les nombres magiques ,
- 
-#	-variable direct pour les enfants de gridcontainer au lieu d'appeler get_children a chaque fois
-
-#	-truc de l'inference de type chelou : y'a pas comme en en python l'operateur // pour etre sur 
-#                                         d'avoir un entier (et ça pourrait merder)
-
-#	-moins de var, + de const quand possible
-
-#	-et tout le reste::^))
+#ça pique les yeux
 
 extends Control
 
 #I) ATTRIBUTS
 #____________________________________
 #constantes
-const highlight_size = Vector2(58, 58)
+const MIN_HIGHLIGHT_SIZE = Vector2(58, 58)
+const MIN_CELL_SIZE = Vector2(54,54)
+const PURPLISH = Color("ee82ee")
+const REDISH = Color("ff7070")
+const GRAYISH = Color("e6e6fa")
 
 #noeuds enfants
 onready var highlight = $ColorRect
 onready var container = $GridContainer
+onready var squares = container.get_children()
 
 #attributs de la classe specifique a la logique du jeu
 var hovered_node: ColorRect = null #carrés pointé par la souris
 var selected = [] #les carrés sélectionnés par le joueur
-var last_hovered : ColorRect = null
 var selecting = false #le joueur est en mode sélection
-var switched = false #la selection courante a été "switchée/flippée/swappée" (jsp comment faire un truc simple pour calculer le highlight)
-					 #true si la selection est en miroir par rapport au debut, false sinon
 #_______________________________________
 
 
@@ -44,50 +31,50 @@ var switched = false #la selection courante a été "switchée/flippée/swappée
 #_______________________________________
 
 
-#appellée quand le noeud est "pret" (après initialisation, la fonction _init de node)
+#appellée quand le noeud est "pret" (après la fonction _init de node)
 func _ready():
 	highlight.hide()
 
 #-----
 #event handling (appelée quand un des évenement est déclenché)
-	#cas 1 : bouger la souris (savoir si elle se trouve sur une case)
-	#cas 2 : click de souris
 func _input(event):
 	#move mouse
 	if event is InputEventMouseMotion:
-		var local_pos = get_local_mouse_position()
-		hovered_node = get_node_pos(local_pos)
+		hovered_node = get_node_at_pos(get_local_mouse_position())
 
 	#click
 	elif event is InputEventMouseButton:
-		if event.button_index == BUTTON_LEFT :
-			if event.pressed:
-				switched = false
-				if hovered_node != null:
-					selecting = true
-					selected.clear()
-			elif not event.pressed:
-				selecting = false
+		if event.button_index == BUTTON_LEFT and event.pressed:
+			if hovered_node != null:
+				selecting = true
+				selected.clear()
 
-		elif event.button_index == BUTTON_RIGHT:
+		elif event.button_index == BUTTON_LEFT and not event.pressed:
 			selecting = false
+
+		elif event.button_index == BUTTON_RIGHT and event.pressed:
+			selecting = false
+			#supprime la selection si click gauche et 2 ou moins sélectionnés
 			if selected.size() <= 2:
 				selected.clear()
-			elif event.pressed:
-				switched = not switched
+				highlight.set_size(MIN_HIGHLIGHT_SIZE)
+			else:
 				flip()
 
 
 #-----
+#logique de la sélection
 #_physic_process est appelée environ 1 fois par seconde
 func _physics_process(_delta):
-	#changer la selection
 	if selecting and hovered_node != null:
+
+		#en sélection, mais rien dans selected
 		if not selected:
 			selected.append(hovered_node)
+
+		#en sélection, et le carré pointé est aligné
 		elif aligned(selected[0]):	
 			var boxxx = self.selected[0]
-			#var direction = get_direction()
 			selected.clear()
 			selected.append(boxxx)
 			if hovered_node != selected[0]:
@@ -97,8 +84,6 @@ func _physics_process(_delta):
 				
 #-----
 #_process est appelée environ une fois par frame 
-#par defaut un projet godot tourne en 60 fps
-#modifie la logique et l'ui
 func _process(_delta):
 	#1)sélection
 	if selected:
@@ -106,18 +91,16 @@ func _process(_delta):
 		new_highlight()
 
 	#2)pas de selection mais il faut dessiner le highlight sur la case pointée si il y'en a une
-	elif hovered_node != null and not selected and not selecting:
-		#remettre la taillr d'origine
-		highlight.color = Color("e6e6fa")
+	elif hovered_node != null:
+		highlight.color = GRAYISH
 		highlight.show()	
 
-		#!!!!! get_custom_minimum_size et non get_minimum_size(
-		highlight.set_position(hovered_node.get_position() + hovered_node.get_rect().size / 2 - highlight_size / 2)
+		#!!!!! get_custom_minimum_size et non get_minimum_size
+		highlight.set_position(hovered_node.get_position() + MIN_CELL_SIZE/2 - MIN_HIGHLIGHT_SIZE/2)
 		
 	#3)ni sélection ni pointé
 	else:
-		highlight.hide()	
-
+		highlight.hide()
 				
 #_______________________________________
 
@@ -134,18 +117,17 @@ func flip() -> void:
 	if selected.size() > 2:
 		for i in range(selected.size() / 2):
 			var temp_index = selected[i].get_index()
-			var dest_index = selected[selected.size() - 1 - i].get_index()
+			var dest_index = selected[selected.size() -1 -i].get_index()
 			container.move_child(selected[i], dest_index)
-			container.move_child(selected[selected.size() - 1 - i], temp_index)
+			container.move_child(selected[selected.size() -1 -i], temp_index)
 
 #-----
 #s'assure de la sélection
 #part de selected[0] et ajoute tout les carrée à cette sélection jusqu'au carré pointé par la souris
-#le gros en jeu c'est qu'on utilise un gridcontainer, qui est une 
+#le truc c'est qu'on utilise un gridcontainer, qui est une 
 #structure de données a une dimension (pas un tableau 2d)
 func add_colorrect() -> void:
 	if(selected and hovered_node != null):
-		var i = selected[0].get_index()
 		var end_pos = hovered_node.get_index()
 		var dir = get_direction(hovered_node)
 		var leap = 0
@@ -161,51 +143,28 @@ func add_colorrect() -> void:
 		elif dir == "right":
 			leap = 1
 		
-		var current_pos = i + leap
-		while current_pos != end_pos:
-			
-			var node = container.get_child(current_pos)
-			selected.append(node)
-			current_pos += leap
+		var start = selected[0].get_index() + leap
+		for current_pos in range(start, end_pos, leap):
+			selected.append(container.get_child(current_pos))
 		selected.append(hovered_node)
 
 #-----
-# Get the ColorRect node at the given local mouse position, or null if none is found.
-func get_node_pos(pos: Vector2) -> ColorRect:
-	for node in container.get_children():
-		if node is ColorRect and node.get_rect().has_point(pos):
-			return node
-	return null
-
-#-----
-
 #appelée par la fonction _process pour mettre a jour l'affichage de la surbrillance
-#calcule le coin supérieur gauche et la taille(largeur,longueur) du colorrect qui sert de visualisation 
-#pour la sélection, et met a jour ce colorrect(coordonées et couleurs)
-#fonction non-100%safe, ne vérifie pas les trucs critiques (si selected n'est pas vide et hoverred_node existe)
 func new_highlight() -> void:
 	var dir = get_direction(selected[selected.size()-1])
 	var magie : Vector2
-	var magie_noire : Vector2 = Vector2()
-	var topsquare = selected[0]
 
 	#changer la couleur selon la taille de la selection  
 	if(selected.size() in [1,2]): 
 			#si un seul, revient aux dimension d'origines  
 		if selected.size() == 1:
-			highlight.set_size(highlight_size)
-		highlight.color = Color("ff7070")#rouge
+			highlight.set_size(MIN_HIGHLIGHT_SIZE)
+		highlight.color = REDISH
 	else:
-		highlight.color = Color("ee82ee")#mauve
-	
-
-		
+		highlight.color = PURPLISH
+			
 	#si plusieurs dans la selection
-	#prendre en compte switched
-	#si gauche ou haut, le topleft doit se calculer selon hovered_node
-	#sinon le premier rectangle reste l'endroit pour le topleft
 	if selected.size() > 1:
-		#dans ce cas, un sélection de 2 horizontalement
 		var new_highlight_size: Vector2 = highlight.get_rect().size
 
 		if(dir != "null"):
@@ -227,24 +186,17 @@ func new_highlight() -> void:
 		highlight.set_size(new_highlight_size)
 	
 	#dans tout les cas change la position
-	highlight.set_position((topsquare.get_position() + topsquare.get_global_rect().size / 2 - highlight.get_global_rect().size / 2) + magie)
-
-
-
+	highlight.set_position((selected[0].get_position() + selected[0].get_global_rect().size / 2 - highlight.get_global_rect().size / 2) + magie)
 
 
 #-----
-#compare un rectangle au rectangle pointé par la souris
-#retourne vrai si aligné horizontalement ou verticalement ou si rectangle == hovered_node
-func aligned(rectangle: ColorRect)-> bool: 
-	if hovered_node != null and hovered_node is ColorRect:
-		var hovered_node_pos = hovered_node.get_global_position()
-		var rectangle_pos = rectangle.get_global_position()
-		if hovered_node_pos.y == rectangle_pos.y or hovered_node_pos.x == rectangle_pos.x:
-			return true
-		
-	return false
-	
+# Get the ColorRect node at the given local mouse position, or null if none is found.
+func get_node_at_pos(pos: Vector2) -> ColorRect:
+	for node in squares:
+		if node is ColorRect and node.get_rect().has_point(pos):
+			return node
+	return null
+
 #-----
 #compare le premier carré de la sélection et le carré pointé
 #retourne la direction du premier carré par rapport au carré pointé
@@ -261,4 +213,17 @@ func get_direction(rectangle: ColorRect) -> String:
 			elif selected[0].get_rect().position.x < rectangle.get_rect().position.x:
 				return "right"
 	return "null"
+
+#-----
+#compare un rectangle au rectangle pointé par la souris
+#retourne vrai si aligné horizontalement ou verticalement ou si rectangle == hovered_node
+func aligned(rectangle: ColorRect)-> bool: 
+	if hovered_node != null and hovered_node is ColorRect:
+		var hovered_node_pos = hovered_node.get_global_position()
+		var rectangle_pos = rectangle.get_global_position()
+		if hovered_node_pos.y == rectangle_pos.y or hovered_node_pos.x == rectangle_pos.x:
+			return true
+		
+	return false
+	
 	
