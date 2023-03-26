@@ -1,6 +1,0 @@
-[gd_scene format=2]
-
-[node name="white" type="ColorRect"]
-margin_right = 55.0
-margin_bottom = 55.0
-rect_min_size = Vector2( 54, 54 )
