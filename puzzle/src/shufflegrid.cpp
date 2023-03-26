@@ -44,7 +44,9 @@ void ShuffleGrid::shuffle() {
 
 void ShuffleGrid::_ready() {    
 
-    //attention, si ce bout de code est en init, le vecteur children sera vide !
+    //attention, si ce bout de code est en _init, le vecteur children sera vide !
+    //c'est pour ça que en gdscript, on utilise le mot clé onready pour déclarer
+    //deas variables qu'on ne connait pas a l'initialisation
     //le noeud gridcontainer ne connait pas ses enfants à l'initialisation!
     Array temp = get_children();
     children.reserve(temp.size());
