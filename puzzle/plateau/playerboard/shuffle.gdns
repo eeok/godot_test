@@ -4,5 +4,5 @@
 
 [resource]
 resource_name = "helloWorld"
-class_name ="ShuffleGrid"
+class_name = "ShuffleGrid"
 library = ExtResource( 1 )
