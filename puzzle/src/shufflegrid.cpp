@@ -45,9 +45,11 @@ void ShuffleGrid::shuffle() {
 void ShuffleGrid::_ready() {    
 
     //attention, si ce bout de code est en _init, le vecteur children sera vide !
-    //c'est pour ça que en gdscript, on utilise le mot clé onready pour déclarer
-    //deas variables qu'on ne connait pas a l'initialisation
     //le noeud gridcontainer ne connait pas ses enfants à l'initialisation!
+    //c'est pour ça que en gdscript, on utilise le mot clé onready pour déclarer
+    //des variables qu'on ne connait pas a l'initialisation
+    //donc faire ceci est une traduction directe de shuffle.gd :
+    //les variables onready sont en fait assignée dans _ready de manière internes par Godot
     Array temp = get_children();
     children.reserve(temp.size());
 
