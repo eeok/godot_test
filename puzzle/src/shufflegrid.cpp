@@ -44,7 +44,7 @@ void ShuffleGrid::shuffle() {
 
 void ShuffleGrid::_ready() {    
 
-    //attention, si ce bout de code est en ready, le vecteur children sera vude !
+    //attention, si ce bout de code est en init, le vecteur children sera vide !
     //le noeud gridcontainer ne connait pas ses enfants à l'initialisation!
     Array temp = get_children();
     children.reserve(temp.size());
