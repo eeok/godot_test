@@ -1,4 +1,4 @@
-#ça pique les yeux
+#ça pique les yeux, dont look
 
 extends Control
 

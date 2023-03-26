@@ -13,9 +13,7 @@ func shuffle():
 		add_child(child)
 
 func _ready():
-# Get all children of the GridContainer
-	
 	shuffle()
-	# Shuffle the children randomly
+	#génère une nouvelle seed
 	randomize()
 
