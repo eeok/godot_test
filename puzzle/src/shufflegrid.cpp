@@ -3,8 +3,9 @@
 #include <algorithm>
 
 /**
- * @chatgpt
- * 
+ * certes le code est plus long que shuffle.gd
+ * mais selon mon gestionnaire de taches, les utilisations ressources sont les memes 
+ * (voir légèrement plus performantes)
  * 
  */
 
