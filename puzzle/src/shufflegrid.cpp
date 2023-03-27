@@ -54,7 +54,6 @@ void ShuffleGrid::_ready() {
 
     for (int i = 0; i < temp.size(); i++) 
         children.push_back(Object::cast_to<Node>(temp[i]));
-        //le programme marche sans cast_to<>() mais affiche des messages d'erreurs sur la console Godot
 
     shuffle();
 

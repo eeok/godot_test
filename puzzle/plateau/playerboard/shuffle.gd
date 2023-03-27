@@ -13,7 +13,7 @@ func shuffle():
 		add_child(child)
 
 func _ready():
-	shuffle()
-	#génère une nouvelle seed
+	#génère  une nouvelle seed
 	randomize()
 
+	shuffle()

@@ -65,7 +65,12 @@ func _input(event):
 
 #-----
 #logique de la sélection
-#_physic_process est appelée environ 1 fois par seconde
+#_physics_process est appelée une fois par frame physique
+#selon chatgpt : In general, a physics frame is shorter than a regular frame, 
+#because it needs to run more often to accurately simulate physics interactions between objects.
+#mais ça peut dependre d'un ordi (et config godot) a un autre je suppose, 
+#_physic_process n'est pas forcément plus appelée que _process
+#_physic_process est appelée plusieurs fois par frame (60 fois/ secondes par defaut)
 func _physics_process(_delta):
 	if selecting and hovered_node != null:
 
@@ -84,7 +89,7 @@ func _physics_process(_delta):
 
 				
 #-----
-#_process est appelée environ une fois par frame 
+#_process est appelée une fois par frame
 func _process(_delta):
 	#1)sélection
 	if selected:

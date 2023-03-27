@@ -34,4 +34,11 @@ margin_right = 510.0
 margin_bottom = 578.0
 text = "shuffle"
 
+[node name="label" type="Label" parent="."]
+margin_left = 291.0
+margin_top = 429.0
+margin_right = 678.0
+margin_bottom = 601.0
+text = "felicitation gamer"
+
 [connection signal="pressed" from="button" to="." method="_on_button_pressed"]
